@@ -18,8 +18,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// I let an ai pick the colors
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,5 +98,100 @@ fun Calculator() {
         firstNumber = ""
         operation = ""
         newNumber = true
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        // calc display
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Column(horizontalAlignment = Alignment.End) {
+                if (operation.isNotEmpty()) {
+                    Text(
+                        text = "$firstNumber $operation",
+                        fontSize = 24.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+                Text(
+                    text = display,
+                    fontSize = 64.sp,
+                    fontWeight = FontWeight.Light,
+                    color = Color.White,
+                    textAlign = TextAlign.End,
+                    maxLines = 2,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // clear and divide should be way bigger bcz its only 2 in that row and it fills max width?? too lazy to fix <3
+        val buttons = listOf(
+            listOf("C", "÷"),
+            listOf("7", "8", "9", "×"),
+            listOf("4", "5", "6", "-"),
+            listOf("1", "2", "3", "+"),
+            listOf("0", ".", "=")
+        )
+
+        buttons.forEach { row ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                row.forEach { label ->
+                    val isOperator = label in listOf("+", "-", "×", "÷", "=")
+                    val isClear = label == "C"
+                    val isZero = label == "0"
+
+                    val backgroundColor = when {
+                        isClear -> Color(0xFFFF5722)
+                        isOperator -> Color(0xFF4CAF50)
+                        else -> Color(0xFF333333)
+                    }
+
+                    val textColor = when {
+                        isClear || isOperator -> Color.White
+                        else -> Color.White
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(if (isZero) 2f else 1f)
+                            .aspectRatio(if (isZero) 2.1f else 1f)
+                            .clip(CircleShape)
+                            .background(backgroundColor)
+                            .clickable {
+                                when (label) { // links each button to its function
+                                    "C" -> clearclick()
+                                    "+", "-", "×", "÷" -> operationclick(label)
+                                    "=" -> equalclick()
+                                    else -> numberclick(label)
+                                }
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = label,
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = textColor
+                        )
+                    }
+                }
+            }
+        }
     }
 }
